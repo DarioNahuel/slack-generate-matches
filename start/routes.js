@@ -20,5 +20,5 @@ Route.on('/').render('welcome');
 
 Route.group(() => {
   Route.get('users', 'UserController.index');
-  Route.post('users', 'UserController.store');
+  Route.post('users', 'UserController.store').validator('StoreUser');
 }).prefix('api/v1');
