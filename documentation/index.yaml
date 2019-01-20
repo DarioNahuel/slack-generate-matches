@@ -1,0 +1,11 @@
+swagger: '2.0'
+basePath: '/v1'
+info:
+  title: 'Generate matches documentation'
+  version: '1.0.0'
+tags:
+- name: "user"
+  description: "Operations about user"
+paths:
+  /user:
+    $ref: ./Paths/User.yaml

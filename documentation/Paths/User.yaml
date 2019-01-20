@@ -1,0 +1,43 @@
+get:
+  tags:
+  - "user"
+  summary: "Get users"
+  description: "Get all users"
+  produces:
+  - "application/json"
+  responses:
+    200:
+      description: "successful operation"
+      schema:
+        type: "array"
+        items:
+          $ref: ../Models/User.yaml
+        example:
+          - id: 1
+            name: Dario
+          - id: 2
+            name: Eric
+post:
+  tags:
+  - "user"
+  summary: "Create user"
+  description: "Create a new user"
+  produces:
+  - "application/json"
+  parameters:
+  - in: "body"
+    name: "body"
+    description: "Created user object"
+    required: true
+    schema:
+      $ref: ../Models/User.yaml
+      example:
+        name: Dario
+  responses:
+    201:
+      description: "successful operation"
+      schema:
+        $ref: ../Models/User.yaml
+        example:
+          id: 1
+          name: Dario
