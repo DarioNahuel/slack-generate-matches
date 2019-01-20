@@ -16,9 +16,11 @@
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use('Route');
 
-Route.on('/').render('welcome');
+Route.on('/').render('documentation.index');
 
 Route.group(() => {
   Route.get('users', 'UserController.index');
   Route.post('users', 'UserController.store').validator('StoreUser');
+
+  Route.get('docs', 'DocumentationController.index');
 }).prefix('api/v1');
