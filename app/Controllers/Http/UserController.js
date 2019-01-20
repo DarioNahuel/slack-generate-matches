@@ -13,9 +13,9 @@ class UserController {
 
   async store ({ request, response }) {
     try {
-      const user = await User.create(request.only(['full_name']));
+      const user = await User.create(request.only(['name']));
 
-      response.json(user);
+      response.status(201).json(user);
     } catch (error) {
       response.json(error);
     }
