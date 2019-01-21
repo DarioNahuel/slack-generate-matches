@@ -9,3 +9,5 @@ tags:
 paths:
   /user:
     $ref: ./Paths/User.yaml
+  /user/:id:
+    $ref: ./Paths/User.id.yaml
