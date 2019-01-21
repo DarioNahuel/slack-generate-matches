@@ -4,21 +4,23 @@ const User = use('App/Models/User');
 
 class UserController {
   async index ({ response }) {
-    try {
-      response.json(await User.all());
-    } catch (error) {
-      response.json(error);
-    }
+    response.json(await User.all());
   }
 
   async store ({ request, response }) {
-    try {
-      const user = await User.create(request.only(['name']));
+    const user = await User.create(request.only(['name']));
 
-      response.status(201).json(user);
-    } catch (error) {
-      response.json(error);
-    }
+    response.status(201).json(user);
+  }
+
+  async destroy ({ request, response }) {
+    const { id } = request.params;
+
+    const user = await User.findOrFail(id);
+
+    await user.delete();
+
+    response.status(204);
   }
 }
 

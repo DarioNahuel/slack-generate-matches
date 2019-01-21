@@ -21,6 +21,7 @@ Route.on('/').render('documentation.index');
 Route.group(() => {
   Route.get('users', 'UserController.index');
   Route.post('users', 'UserController.store').validator('StoreUser');
+  Route.delete('users/:id', 'UserController.destroy');
 
   Route.get('docs', 'DocumentationController.index');
 }).prefix('api/v1');
