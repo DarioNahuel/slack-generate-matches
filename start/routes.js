@@ -19,9 +19,13 @@ const Route = use('Route');
 Route.on('/').render('documentation.index');
 
 Route.group(() => {
+  // User routes
   Route.get('users', 'UserController.index');
   Route.post('users', 'UserController.store').validator('StoreUser');
   Route.delete('users/:id', 'UserController.destroy');
+
+  // Time routes
+  Route.get('times', 'TimeController.index');
 
   Route.get('docs', 'DocumentationController.index');
 }).prefix('api/v1');
