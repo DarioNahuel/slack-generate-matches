@@ -27,5 +27,10 @@ Route.group(() => {
   // Time routes
   Route.get('times', 'TimeController.index');
 
+  // Match routes
+  Route.get('matches', 'MatchController.index');
+  Route.post('matches', 'MatchController.store');//.validator('StoreMatch');
+  Route.delete('matches/:id', 'MatchController.destroy');
+
   Route.get('docs', 'DocumentationController.index');
 }).prefix('api/v1');
