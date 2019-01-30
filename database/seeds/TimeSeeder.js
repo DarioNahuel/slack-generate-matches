@@ -24,7 +24,6 @@ const hours = [
   '13:45',
   '14:00',
   '14:15',
-  '14:30',
 ];
 
 class TimeSeeder {
