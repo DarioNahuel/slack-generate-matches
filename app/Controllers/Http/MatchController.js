@@ -1,9 +1,6 @@
 'use strict'
 
 const Match = use('App/Models/Match');
-const User = use('App/Models/User');
-const Time = use('App/Models/Time');
-
 class MatchController {
 
   async index ({ response }) {
@@ -12,13 +9,8 @@ class MatchController {
 
   async store ({ request, response }) {
     const { user1_id, user2_id, time_id } = request.all();
-    await Match.create({ user1_id, user2_id, time_id });
-
-    const user1 = await User.findOrFail(user1_id);
-    const user2 = await User.findOrFail(user2_id);
-    const time = await Time.findOrFail(time_id);
-    const message = `${user1.name} vs ${user2.name}`;
-    response.status(201).json({ message, time: time.hour });
+    const match = await Match.create({ user1_id, user2_id, time_id });
+    response.status(201).json(match);
   }
 
   async destroy ({ request, response }) {
