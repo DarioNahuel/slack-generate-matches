@@ -1,6 +1,7 @@
 'use strict';
 
 const Match = use('App/Models/Match');
+const CustomException = use('App/Exceptions/CustomException');
 
 const matchTaken = async timeId => {
   const matches = await Match.query()
@@ -15,13 +16,21 @@ class MatchController {
   }
 
   async store ({ request, response }) {
-    const { user1_id, user2_id, time_id } = request.all();
+    const { user1Id, user2Id, timeId } = request.all();
 
-    if (user1_id === user2_id || await matchTaken(time_id)) {
-      return response.status(400).json('bad request');
+    if (await matchTaken(timeId)) {
+      throw new CustomException('match taken', 400, 'bad request');
     }
 
-    const match = await Match.create({ user1_id, user2_id, time_id });
+    if (user1Id === user2Id) {
+      throw new CustomException('player1 cant be equal to player2', 400, 'bad request');
+    }
+
+    const match = await Match.create({
+      user1_id: user1Id,
+      user2_id: user2Id,
+      time_id: timeId,
+    });
 
     response.status(201).json(match);
   }
