@@ -2,7 +2,7 @@
 
 const { formatters } = use('Validator');
 const Validator = use('Validator');
-const Database = use('Database')
+const Database = use('Database');
 
 class ApiValidation {
   async fails (errorMessages) {
@@ -25,13 +25,13 @@ const existsFn = async (data, field, message, args, get) => {
   }
 
   const [table, column] = args;
-  const row = await Database.table(table).where(column, value).first()
+  const row = await Database.table(table).where(column, value).first();
 
   if (!row) {
     throw message;
   }
 };
 
-Validator.extend('exists', existsFn)
+Validator.extend('exists', existsFn);
 
 module.exports = ApiValidation;
