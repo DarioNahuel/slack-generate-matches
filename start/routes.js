@@ -33,7 +33,10 @@ Route.group(() => {
   Route.delete('matches/:id', 'MatchController.destroy');
 
   // Slack routes
-  Route.post('slackMatches', 'MatchController.slackStore');
+  Route.post('slackMatches', 'SlackController.matchStore');
+  //Route.post('slackUsers', 'SlackController.userStore');
+  //Route.post('slackUserLink', 'SlackController.userLink');
+  //Route.post('slackChallenges', 'SlackController.matchChallenge');
 
   Route.get('docs', 'DocumentationController.index');
 }).prefix('api/v1');
