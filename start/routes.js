@@ -32,5 +32,8 @@ Route.group(() => {
   Route.post('matches', 'MatchController.store').validator('StoreMatch');
   Route.delete('matches/:id', 'MatchController.destroy');
 
+  // Slack routes
+  Route.post('slackMatches', 'MatchController.slackStore');
+
   Route.get('docs', 'DocumentationController.index');
 }).prefix('api/v1');
