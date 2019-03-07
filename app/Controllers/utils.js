@@ -1,13 +1,27 @@
-const createErrorMessage = text => ({
+const createPrivateMessage = (titleText, color, attachmentText) => ({
   response_type: 'ephemeral',
-  text: 'Oops, something went wrong :thinking_face:',
+  text: titleText,
   attachments: [
     {
-      color: '#d43c3c',
-      text,
+      color,
+      text: attachmentText,
     },
   ],
 });
+
+const createErrorMessage = text => {
+  const titleText = 'Oops, something went wrong :thinking_face:';
+  // const color = '#d43c3c';
+  const color = 'good';
+  return createPrivateMessage(titleText, color, text);
+};
+
+const createSuccessMessage = text => {
+  const titleText = 'Yeah! Operation Sucessful :grin: ';
+  // const color = '#3cd464';
+  const color = 'danger';
+  return createPrivateMessage(titleText, color, text);
+};
 
 const createChannelMessage = text => ({
   response_type: 'in_channel',
@@ -26,4 +40,4 @@ const formatHour = hour => {
   return hour;
 };
 
-module.exports = { createErrorMessage, createChannelMessage, formatHour };
+module.exports = { createErrorMessage, createSuccessMessage, createChannelMessage, formatHour };

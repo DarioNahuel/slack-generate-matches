@@ -32,6 +32,12 @@ const existsFn = async (data, field, message, args, get) => {
   }
 };
 
+const noSpacesFn = async (data, field, message, args, get) => {
+  const value = get(data, field);
+  if (value.indexOf(' ') !== -1) throw message;
+};
+
 Validator.extend('exists', existsFn);
+Validator.extend('noSpaces', noSpacesFn);
 
 module.exports = ApiValidation;

@@ -33,10 +33,17 @@ Route.group(() => {
   Route.delete('matches/:id', 'MatchController.destroy');
 
   // Slack routes
-  Route.post('slackMatches', 'SlackController.matchStore');
-  //Route.post('slackUsers', 'SlackController.userStore');
-  //Route.post('slackUserLink', 'SlackController.userLink');
-  //Route.post('slackChallenges', 'SlackController.matchChallenge');
+  Route.post('slackMatchStore', 'SlackController.matchStore');
+  Route.post('slackMatchChallenge', 'SlackController.matchChallenge');
+  // Route.post('slackMatchUpdate', 'SlackController.matchUpdate');
+  Route.post('slackMatchDelete', 'SlackController.matchDelete');
+
+  Route.post('slackUserStore', 'SlackController.userStore');
+  // Route.post('slackUserUpdate', 'SlackController.userUpdate');
+  // Route.post('slackUserDelete', 'SlackController.userDelete');
+  // Route.post('slackUserLink', 'SlackController.userLink');
+  
+  Route.post('slackActions', 'SlackController.actionsHandler');
 
   Route.get('docs', 'DocumentationController.index');
 }).prefix('api/v1');

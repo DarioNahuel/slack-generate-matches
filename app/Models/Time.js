@@ -1,7 +1,7 @@
-'use strict'
+'use strict';
 
 /** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */
-const Model = use('Model')
+const Model = use('Model');
 
 class Time extends Model {
   static get hidden () {
@@ -9,4 +9,4 @@ class Time extends Model {
   }
 }
 
-module.exports = Time
+module.exports = Time;
