@@ -9,24 +9,60 @@ const createPrivateMessage = (titleText, color, attachmentText) => ({
   ],
 });
 
+const createChannelMessage = (text, attachments = []) => ({
+  response_type: 'in_channel',
+  text,
+  attachments,
+});
+
 const createErrorMessage = text => {
   const titleText = 'Oops, something went wrong :thinking_face:';
-  // const color = '#d43c3c';
-  const color = 'good';
-  return createPrivateMessage(titleText, color, text);
-};
-
-const createSuccessMessage = text => {
-  const titleText = 'Yeah! Operation Sucessful :grin: ';
-  // const color = '#3cd464';
   const color = 'danger';
   return createPrivateMessage(titleText, color, text);
 };
 
-const createChannelMessage = text => ({
-  response_type: 'in_channel',
-  text,
+const createSuccessMessage = text => {
+  const titleText = 'Yeah! Operation Sucessful :grin:';
+  const color = 'good';
+  return createPrivateMessage(titleText, color, text);
+};
+
+const simpleRow = (rowText) => ({
+  type: 'section',
+  text: {
+    type: 'mrkdwn',
+    text: rowText,
+  }
 });
+
+const rowWithButton = (rowText, buttonText, buttonValue) => ({
+  type: 'section',
+  text: {
+    type: 'mrkdwn',
+    text: rowText,
+  },
+  accessory: {
+    type: 'button',
+    text: {
+      type: 'plain_text',
+      text: buttonText,
+      emoji: true
+    },
+    value: buttonValue,
+  }
+});
+
+const slackMessages = {
+  createPrivateMessage,
+  createChannelMessage,
+  createErrorMessage,
+  createSuccessMessage,
+  blockElements: {
+    simpleRow,
+    rowWithButton,
+  },
+};
+
 
 const formatHour = hour => {
   if (hour.length === 2) {
@@ -40,4 +76,4 @@ const formatHour = hour => {
   return hour;
 };
 
-module.exports = { createErrorMessage, createSuccessMessage, createChannelMessage, formatHour };
+module.exports = { slackMessages, formatHour,};

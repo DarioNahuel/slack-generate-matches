@@ -4,24 +4,31 @@ const Match = use('App/Models/Match');
 const User = use('App/Models/User');
 const Time = use('App/Models/Time');
 
-const { createErrorMessage, createSuccessMessage, createChannelMessage, formatHour } = use('App/Controllers/utils.js');
+const { slackMessages, formatHour } = use('App/Controllers/utils.js');
 
-const challengeButton = () => {
-  return 'CHALLENGE'
-};
+const { createChannelMessage, createErrorMessage, createSuccessMessage, blockElements } = slackMessages;
 
-const getFormattedList = async () => {
+const matchListMessage = async () => {
   const todayMatches = await Match.query()
   .createdToday()
   .withRelated()
   .orderBy('time_id')
   .fetch();
 
-  return todayMatches.toJSON().reduce((accumulator, currentValue) => {
-    const { time, user1, user2 } = currentValue;
-    return `${accumulator}>${time.hour}: ${user1.name} vs ${user2 ? user2.name : challengeButton()}\n`;
-  }, []);
+  const text = '*--- Match list updated ---*';
+  const blocks = todayMatches.toJSON().map( match => {
+    const { time, user1, user2 } = match;
+    return user2 ?
+      blockElements.simpleRow(`${time.hour}: ${user1.name} vs ${user2.name}`) :
+      blockElements.rowWithButton(`${time.hour}: ${user1.name} waiting for Player 2...`, 'Play', user1.slack_id);
+  });
+  const attachments = [{
+    blocks,
+  }]
+
+  return createChannelMessage(text, attachments); 
 }
+
 
 class SlackController {
   async matchStore ({ request, response }) {
@@ -68,8 +75,7 @@ class SlackController {
         time_id: time.id,
       });
 
-      const formattedMatches = await getFormattedList();
-      const message = createChannelMessage(`*--- Match list updated ---*\n\n${formattedMatches}`);
+      const message = await matchListMessage();
       response.status(200).json(message);
     } catch (error) {
       const message = createErrorMessage(error.message);
@@ -77,47 +83,17 @@ class SlackController {
     }
   }
 
-  async matchChallenge ({ request, response }) {
+  async matchChallenge ({ request, response }) {  
     try {
       const { text, user_id } = request.body;
 
-      const asd = {
-        response_type: 'ephemeral',
-        text: '*---Match List updated---*',
-        attachments: [
-          {
-            blocks: [
-              {
-                type: "section",
-                text: {
-                  type: "mrkdwn",
-                  text: "You can add a button alongside text in your message. "
-                },
-                accessory: {
-                  type: "button",
-                  text: {
-                    type: "plain_text",
-                    text: "Button",
-                    emoji: true
-                  },
-                  value: "click_me_123"
-                }
-              }
-            ]
-              
-          }
-        ],
-      };
-
-      return response.status(200).json(asd);
-      
       const parameters = text.split(' ');
       if (parameters.length !== 1) {
         const message = createErrorMessage('Wrong number of parameters');
         return response.status(200).json(message);
       }
+ 
       const [timeHour] = parameters;
-
       const time = await Time.findBy('hour', formatHour(timeHour));
       const user = await User.findBy('slack_id', user_id);
 
@@ -140,8 +116,8 @@ class SlackController {
         user1_id: user.id,
         time_id: time.id,
       });
-      const formattedMatches = await getFormattedList();
-      const message = createChannelMessage(`*--- Match list updated ---*\n\n${formattedMatches}`);
+
+      const message = await matchListMessage();
       response.status(200).json(message);
     } catch (error) {
       const message = createErrorMessage(error.message);
@@ -189,8 +165,7 @@ class SlackController {
 
       await match.delete();
 
-      const formattedMatches = await Match.formattedList();
-      const message = createChannelMessage(`*--- Match list updated ---*\n\n${formattedMatches}`);
+      const message = await matchListMessage();
       response.status(200).json(message);
     } catch (error) {
       response.status(200).json(createErrorMessage(error.message));
@@ -228,7 +203,7 @@ class SlackController {
       console.log(response_url);
       console.log(request.body);
 
-      const asd = {
+      const message = {
         response_type: 'ephemeral',
         text: '*---Match List updated---*',
         attachments: [
@@ -246,8 +221,8 @@ class SlackController {
           }
         ],
       };
-      console.log("123123123213");
-      response.status(200).json(asd);
+      
+      response.status(200).json(message);
     } catch (error) {
       //TODO: change error response to catch repeated name or slack_id
       response.status(200).json(createErrorMessage(error.message));
