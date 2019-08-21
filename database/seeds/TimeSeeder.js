@@ -28,7 +28,7 @@ const hours = [
 
 class TimeSeeder {
   async run () {
-    await Promise.all(hours.map(async hour => Time.create({ hour })));
+    await Promise.all(hours.map(async hour => await Time.create({ hour })));
   }
 }
 

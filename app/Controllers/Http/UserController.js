@@ -8,7 +8,12 @@ class UserController {
   }
 
   async store ({ request, response }) {
-    const user = await User.create(request.only(['name']));
+    const { name, slackId } = request.all();
+
+    const match = await User.create({
+      name,
+      slack_id: slackId,
+    });
 
     response.status(201).json(user);
   }

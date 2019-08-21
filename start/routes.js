@@ -32,17 +32,15 @@ Route.group(() => {
   Route.post('matches', 'MatchController.store').validator('StoreMatch');
   Route.delete('matches/:id', 'MatchController.destroy');
 
-  // Slack routes
-  Route.post('slackMatchStore', 'SlackController.matchStore');
-  Route.post('slackMatchChallenge', 'SlackController.matchChallenge');
-  // Route.post('slackMatchUpdate', 'SlackController.matchUpdate');
-  Route.post('slackMatchDelete', 'SlackController.matchDelete');
+  // Slack User routes
+  Route.post('slackUserStore', 'SlackUserController.userStore');
+  Route.post('slackUserUpdate', 'SlackUserController.userUpdate');
 
-  Route.post('slackUserStore', 'SlackController.userStore');
-  // Route.post('slackUserUpdate', 'SlackController.userUpdate');
-  // Route.post('slackUserDelete', 'SlackController.userDelete');
-  // Route.post('slackUserLink', 'SlackController.userLink');
-  
+  // Slack Match routes
+  Route.post('slackMatchStore', 'SlackMatchController.matchStore');
+  Route.post('slackMatchChallenge', 'SlackMatchController.matchChallenge');
+  Route.post('slackMatchDelete', 'SlackMatchController.matchDelete');
+
   Route.post('slackActions', 'SlackController.actionsHandler');
 
   Route.get('docs', 'DocumentationController.index');

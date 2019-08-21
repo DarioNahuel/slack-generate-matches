@@ -1,4 +1,5 @@
 'use strict';
+const axios = require('axios')
 
 const Match = use('App/Models/Match');
 const User = use('App/Models/User');
@@ -15,22 +16,21 @@ const matchListMessage = async () => {
   .orderBy('time_id')
   .fetch();
 
-  const text = '*--- Match list updated ---*';
-  const blocks = todayMatches.toJSON().map( match => {
+  const text = blockElements.simpleRow('*--- Match list ---*');
+  
+  const matches = todayMatches.toJSON().map(match => {
     const { time, user1, user2 } = match;
     return user2 ?
       blockElements.simpleRow(`${time.hour}: ${user1.name} vs ${user2.name}`) :
-      blockElements.rowWithButton(`${time.hour}: ${user1.name} waiting for Player 2...`, 'Play', user1.slack_id);
+      blockElements.rowWithButton(`${time.hour}: ${user1.name} waiting for Player 2...`, 'Play', `${match.id}`);
   });
-  const attachments = [{
-    blocks,
-  }]
 
-  return createChannelMessage(text, attachments); 
+  const blocks = [text, blockElements.dividerRow(), ...matches];
+  return createChannelMessage(blocks);
 }
 
 
-class SlackController {
+class SlackMatchController {
   async matchStore ({ request, response }) {
     try {
       const parameters = request.body.text.split(' ');
@@ -103,7 +103,7 @@ class SlackController {
       }
 
       if (!user) {
-        const message = createErrorMessage('Slack user not linked\n Try `/linkuser [userName]` before');
+        const message = createErrorMessage('Player does not exist \n Try `/playercreate [userName]` before');
         return response.status(200).json(message);
       }
       
@@ -145,7 +145,7 @@ class SlackController {
       }
 
       if (!user) {
-        const message = createErrorMessage('Slack user not linked\n Try `/linkuser [userName]` before');
+        const message = createErrorMessage('Player does not exist \n Try `/playercreate [userName]` before');
         return response.status(200).json(message);
       }
 
@@ -172,62 +172,42 @@ class SlackController {
     }
   }
 
-  async userStore ({ request, response }) {
-    try {
-      const { text, user_id } = request.body;
-
-      const parameters = text.split(' ');
-      if (parameters.length !== 1) {
-        const message = createErrorMessage('Wrong number of parameters');
-        return response.status(200).json(message);
-      }
-      const [name] = parameters;
-      
-      await User.create({
-        name,
-        slack_id: user_id,
-      });
-
-      const message = createSuccessMessage(`User ${name} created`);
-      response.status(201).json(message);
-    } catch (error) {
-      //TODO: change error response to catch repeated name or slack_id
-      response.status(200).json(createErrorMessage(error.message));
-    }
-  }
-
   async actionsHandler ({ request, response }) {
     try {
-      const { user, response_url} = JSON.parse(request.body.payload);
-      console.log(user);
-      console.log(response_url);
-      console.log(request.body);
+      const { user, response_url, actions} = JSON.parse(request.body.payload);
+      const matchId = actions[0].value;
 
-      const message = {
-        response_type: 'ephemeral',
-        text: '*---Match List updated---*',
-        attachments: [
-          {
-            blocks: [
-              {
-                type: "section",
-                text: {
-                  type: "mrkdwn",
-                  text: "You can add a button asdasd text in your message. "
-                },
-              }
-            ]
-              
-          }
-        ],
-      };
-      
-      response.status(200).json(message);
+      const newPlayer = await User.findBy('slack_id', user.id);
+      if (!newPlayer) {
+        const message = createErrorMessage('Player does not exist \n Try `/playercreate [userName]` before');
+        return response.status(500).json(message);
+      }
+
+      const match = await Match.findOrFail(matchId);
+
+      if (match.user1_id == newPlayer.id) {
+        const message = createErrorMessage(`You cant accept your own challenge`);
+        return response.status(500).json(message);
+      }
+
+      match.user2_id = newPlayer.id;
+      await match.save();
+
+
+
+      const message = await matchListMessage();
+      axios.post(response_url, message)
+        .then((res) => {
+          response.status(200);
+        })
+        .catch((error) => {
+          response.status(500).json(createErrorMessage(error.message));
+        })
     } catch (error) {
       //TODO: change error response to catch repeated name or slack_id
-      response.status(200).json(createErrorMessage(error.message));
+      response.status(500).json(createErrorMessage(error.message));
     }
   }
 }
 
-module.exports = SlackController;
+module.exports = SlackMatchController;

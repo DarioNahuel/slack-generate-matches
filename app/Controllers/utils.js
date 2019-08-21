@@ -9,10 +9,9 @@ const createPrivateMessage = (titleText, color, attachmentText) => ({
   ],
 });
 
-const createChannelMessage = (text, attachments = []) => ({
+const createChannelMessage = (blocks) => ({
   response_type: 'in_channel',
-  text,
-  attachments,
+  blocks,
 });
 
 const createErrorMessage = text => {
@@ -35,6 +34,10 @@ const simpleRow = (rowText) => ({
   }
 });
 
+const dividerRow = () => ({
+  type: 'divider',
+})
+
 const rowWithButton = (rowText, buttonText, buttonValue) => ({
   type: 'section',
   text: {
@@ -46,7 +49,6 @@ const rowWithButton = (rowText, buttonText, buttonValue) => ({
     text: {
       type: 'plain_text',
       text: buttonText,
-      emoji: true
     },
     value: buttonValue,
   }
@@ -60,6 +62,7 @@ const slackMessages = {
   blockElements: {
     simpleRow,
     rowWithButton,
+    dividerRow,
   },
 };
 
