@@ -79,4 +79,4 @@ const formatHour = hour => {
   return hour;
 };
 
-module.exports = { slackMessages, formatHour,};
+module.exports = { slackMessages, formatHour };

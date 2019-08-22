@@ -1,4 +1,5 @@
 'use strict';
+
 const axios = require('axios')
 
 const Match = use('App/Models/Match');
@@ -7,7 +8,7 @@ const Time = use('App/Models/Time');
 
 const { slackMessages, formatHour } = use('App/Controllers/utils.js');
 
-const { createChannelMessage, createErrorMessage, createSuccessMessage, blockElements } = slackMessages;
+const { createChannelMessage, createErrorMessage, blockElements } = slackMessages;
 
 const matchListMessage = async () => {
   const todayMatches = await Match.query()
@@ -33,87 +34,46 @@ const matchListMessage = async () => {
 class SlackMatchController {
   async matchStore ({ request, response }) {
     try {
-      const parameters = request.body.text.split(' ');
+      const { text, user_id } = request.body;
+      const parameters = text.split(' ');
 
-      if (parameters.length !== 3) {
+      if ((parameters.length < 1) || (parameters.length > 2)) {
         const message = createErrorMessage('Wrong number of parameters');
         return response.status(200).json(message);
       }
-      const [user1Name, user2Name, timeHour] = parameters;
+      const [timeHour, opponentName] = parameters;
       
-      const user1 = await User.findBy('name', user1Name);
-      const user2 = await User.findBy('name', user2Name);
+      const user1 = await User.findBy('slack_id', user_id);
+      const user2 = opponentName ? await User.findBy('name', opponentName) : null;
       const time = await Time.findBy('hour', formatHour(timeHour));
       
       // TODO: find a better way to handle error messages
       if (!user1) {
-        const message = createErrorMessage(`User with name ${user1Name} does not exist`);
+        const message = createErrorMessage('Player does not exist \n Try `/playercreate [userName]` before');
         return response.status(200).json(message);
       }
-      if (!user2) {
-        const message = createErrorMessage(`User with name ${user2Name} does not exist`);
-        return response.status(200).json(message);
+      if (opponentName) {
+        if (!user2) {
+          const message = createErrorMessage(`User with name ${user2Name} does not exist`);
+          return response.status(200).json(message);
+        }
+        if (user1.id === user2.id) {
+          const message = createErrorMessage('Cannot create game against yourself :sweat_smile:');
+          return response.status(200).json(message);
+        }
       }
       if (!time) {
         const message = createErrorMessage(`Time with hour ${timeHour} does not exist`);
         return response.status(200).json(message);
       }
-
       if (await Match.taken(time.id)) {      
         const message = createErrorMessage(`Match at ${time.hour} already taken`);
-        return response.status(200).json(message);
-      }
-
-      if (user1.id === user2.id) {
-        const message = createErrorMessage('[player1] cant be equal to [player2]');
         return response.status(200).json(message);
       }
 
       await Match.create({
         user1_id: user1.id,
-        user2_id: user2.id,
-        time_id: time.id,
-      });
-
-      const message = await matchListMessage();
-      response.status(200).json(message);
-    } catch (error) {
-      const message = createErrorMessage(error.message);
-      response.status(200).json(message);
-    }
-  }
-
-  async matchChallenge ({ request, response }) {  
-    try {
-      const { text, user_id } = request.body;
-
-      const parameters = text.split(' ');
-      if (parameters.length !== 1) {
-        const message = createErrorMessage('Wrong number of parameters');
-        return response.status(200).json(message);
-      }
- 
-      const [timeHour] = parameters;
-      const time = await Time.findBy('hour', formatHour(timeHour));
-      const user = await User.findBy('slack_id', user_id);
-
-      if (!time) {
-        const message = createErrorMessage(`Time with hour ${timeHour} does not exist`);
-        return response.status(200).json(message);
-      }
-
-      if (!user) {
-        const message = createErrorMessage('Player does not exist \n Try `/playercreate [userName]` before');
-        return response.status(200).json(message);
-      }
-      
-      if (await Match.taken(time.id)) {      
-        const message = createErrorMessage(`Match at ${time.hour} already taken`);
-        return response.status(200).json(message);
-      }
-
-      await Match.create({
-        user1_id: user.id,
+        user2_id: user2 ? user2.id : null,
         time_id: time.id,
       });
 

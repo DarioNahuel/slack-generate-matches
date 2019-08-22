@@ -1,9 +1,6 @@
 'use strict';
-const axios = require('axios')
 
-const Match = use('App/Models/Match');
 const User = use('App/Models/User');
-const Time = use('App/Models/Time');
 
 const { slackMessages } = use('App/Controllers/utils.js');
 

@@ -38,7 +38,6 @@ Route.group(() => {
 
   // Slack Match routes
   Route.post('slackMatchStore', 'SlackMatchController.matchStore');
-  Route.post('slackMatchChallenge', 'SlackMatchController.matchChallenge');
   Route.post('slackMatchDelete', 'SlackMatchController.matchDelete');
 
   Route.post('slackActions', 'SlackController.actionsHandler');
